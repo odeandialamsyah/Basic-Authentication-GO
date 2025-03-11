@@ -1,7 +1,7 @@
 package routes
 
 import (
-    "auth-go/controllers"
+    "basic_authentication_go/controllers"
     "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 )
