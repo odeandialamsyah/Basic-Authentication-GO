@@ -33,3 +33,36 @@ func (ac *AuthController) Register(c *gin.Context) {
 	ac.DB.Create(&user)
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
+
+func (ac *AuthController) Login(c *gin.Context) {
+	var user models.User
+	var input struct {
+		Email		string `json:"email"`
+		Passwors	string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error})
+		return
+	}
+
+	//find user by email
+	if err := ac.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	//Check Password
+	if !utils.CheckPasswordHash(input.Passwors, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+	}
+
+	//Generate JWT Token
+	token, err := utils.GenerateJWT(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
