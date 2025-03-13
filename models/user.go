@@ -8,3 +8,7 @@ type User struct {
 	Email		string `json:"email" gorm:"unique;not null"`
 	Password 	string `json:"password" gorm:"not null"`
 }
+
+func MigrateUsers(db *gorm.DB) {
+    db.AutoMigrate(&User{})
+}
