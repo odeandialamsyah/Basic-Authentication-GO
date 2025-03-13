@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"basic_authentication_go/utils"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		token, err := utils.VerifyJWT(tokenString)
 		if err != nil{
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "INvalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
