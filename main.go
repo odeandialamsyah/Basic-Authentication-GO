@@ -2,6 +2,7 @@ package main
 
 import (
 	"basic_authentication_go/config"
+	"basic_authentication_go/models"
 	"basic_authentication_go/routes"
 
 	"github.com/gin-gonic/gin"
