@@ -4,6 +4,7 @@ import (
 	"basic_authentication_go/config"
 	"basic_authentication_go/models"
 	"basic_authentication_go/routes"
+	"basic_authentication_go/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,7 @@ import (
 func main() {
 	config.ConnectDB()
 	models.MigrateUsers(config.DB)
+	utils.SeedRole(config.DB)
 
 	r := gin.Default()
 
