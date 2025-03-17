@@ -29,8 +29,19 @@ func (ac *AuthController) Register(c *gin.Context) {
 
 	user.Password = hashedPassword
 
+	var role models.Role
+	if err := ac.DB.Where("name = ?", "user").First(&role).Error; err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign role"})
+		return
+	}
+
+	user.RoleID = role.ID
+
 	//save
-	ac.DB.Create(&user)
+	if err := ac.DB.Create(&user).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to register user"})
+		return
+	}
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
 
