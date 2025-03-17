@@ -11,6 +11,13 @@ type User struct {
     Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
 }
 
+type Role struct {
+    gorm.Model
+    Name  string `json:"name" gorm:"unique;not null"`
+    Users []User `gorm:"foreignKey:RoleID" json:"-"`
+}
+
 func MigrateUsers(db *gorm.DB) {
     db.AutoMigrate(&User{})
+	db.AutoMigrate(&Role{})
 }

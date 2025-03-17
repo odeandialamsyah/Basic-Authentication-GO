@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"basic_authentication_go/models"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func HashPassword(password string) (string, error) {
@@ -32,4 +34,18 @@ func VerifyJWT(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
+}
+
+func SeedRole(db *gorm.DB) {
+	roles := []models.Role{
+		{Name: "admin"},
+		{Name: "user"},
+	}
+
+	for _, role := range roles {
+		var existingRole models.Role
+		if err := db.Where("name = ?", role.Name).First(&existingRole).Error; err != nil{
+			db.Create(&role)
+		}
+	}
 }
