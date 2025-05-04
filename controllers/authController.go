@@ -39,7 +39,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 
 	//save
 	if err := ac.DB.Create(&user).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Failed to register user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
@@ -48,8 +48,8 @@ func (ac *AuthController) Register(c *gin.Context) {
 func (ac *AuthController) Login(c *gin.Context) {
 	var user models.User
 	var input struct {
-		Email		string `json:"email"`
-		Passwors	string `json:"password"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -58,14 +58,15 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	//find user by email
-	if err := ac.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	if err := ac.DB.Preload("Role").Where("email = ?", input.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
 	//Check Password
-	if !utils.CheckPasswordHash(input.Passwors, user.Password) {
+	if !utils.CheckPasswordHash(input.Password, user.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
 	}
 
 	//Generate JWT Token
